@@ -6,7 +6,7 @@ import java.util.Scanner;
 public class Year2019Day8 {
 
     private static int WIDTH = 25, HEIGHT = 6;
-    // YLFPJ
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         String line = scanner.next();
@@ -22,12 +22,12 @@ public class Year2019Day8 {
 //
 //    And here is the output of my solution for the second part.
 //
-//    @...@@....@@@@.@@@....@@.
-//    @...@@....@....@..@....@.
-//    .@.@.@....@@@..@..@....@.
-//    ..@..@....@....@@@.....@.
-//    ..@..@....@....@....@..@.
-//    ..@..@@@@.@....@.....@@..
+//    *   * *     ****  ***     **
+//    *   * *     *     *  *     *
+//     * *  *     ***   *  *     *
+//      *   *     *     ***      *
+//      *   *     *     *     *  *
+//      *   ****  *     *      **
 
 //    The decoded message is: YLFPJ
 
@@ -80,7 +80,10 @@ public class Year2019Day8 {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < HEIGHT; ++i) {
             for (int j = 0; j < WIDTH; ++j) {
-                sb.append(finalImage[i][j] == 0 ? '.' : '@');
+                sb.append(finalImage[i][j] == 0 ? ' ' : '*');
+                if (j % 5 == 4) {
+                    sb.append(' ');
+                }
             }
             sb.append('\n');
         }
