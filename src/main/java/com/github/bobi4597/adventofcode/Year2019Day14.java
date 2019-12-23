@@ -10,6 +10,9 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * https://adventofcode.com/2019/day/14
+ */
 public class Year2019Day14 {
 
     static class Edge {
