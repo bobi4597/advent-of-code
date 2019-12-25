@@ -78,7 +78,7 @@ public class Year2019Day14 {
 
     public static void main(String[] args) {
         readInput();
-        System.out.printf("%d\n", solve1());
+        System.out.printf("%d\n", solve2());
     }
 
     private static void readInput() {
@@ -126,39 +126,50 @@ public class Year2019Day14 {
 
     /////////////// part 1 /////////////////////
 
-    private static int solve1() {
-        Set<String> visited = new HashSet<>();
+    private static long solve2() {
+        long totalORE = 1_000_000_000_000L;
+        Map<String, Integer> extraMap = new HashMap<>();
+        long count = 0L;
 
-        PriorityQueue<State> pq = new PriorityQueue<>((s1, s2) -> s2.order - s1.order);
-        pq.add(new State("FUEL", ts.sortOrder.get("FUEL")));
-        Map<String, Integer> requiredMap = new HashMap<>();
-        requiredMap.put("FUEL", 1);
+        while (totalORE >= 0) {
+            Set<String> visited = new HashSet<>();
 
-        while (!pq.isEmpty()) {
-            State state = pq.poll();
-            if (state.node.equals("ORE")) {
-                return requiredMap.get(state.node);
-            }
-            if (visited.contains(state.node)) {
-                continue;
-            }
-            visited.add(state.node);
+            PriorityQueue<State> pq = new PriorityQueue<>((s1, s2) -> s2.order - s1.order);
+            pq.add(new State("FUEL", ts.sortOrder.get("FUEL")));
+            Map<String, Integer> requiredMap = new HashMap<>();
+            requiredMap.put("FUEL", 1);
 
-            Integer producedAmount = g.values.get(state.node);
-            Integer requiredAmount = requiredMap.get(state.node);
-            Integer factor = requiredAmount / producedAmount;
-            if (requiredAmount % producedAmount != 0) {
-                factor += 1;
-            }
+            while (!pq.isEmpty()) {
+                State state = pq.poll();
+                if (state.node.equals("ORE")) {
+                    totalORE -= requiredMap.get(state.node);
+                    ++count;
+                    break;
+                }
+                if (visited.contains(state.node)) {
+                    continue;
+                }
+                visited.add(state.node);
 
-            for (Edge edge: g.edges.get(state.node)) {
-                pq.add(new State(edge.to, ts.sortOrder.get(edge.to)));
-                Integer edgeRequiredAmount = requiredMap.getOrDefault(edge.to, 0);
-                edgeRequiredAmount += edge.value * factor;
-                requiredMap.put(edge.to, edgeRequiredAmount);
+                Integer extraAmount = extraMap.getOrDefault(state.node, 0);
+                Integer producedAmount = g.values.get(state.node);
+                Integer requiredAmount = requiredMap.get(state.node);
+                Integer factor = (requiredAmount - extraAmount) / producedAmount;
+                if ((requiredAmount - extraAmount) % producedAmount != 0) {
+                    factor += 1;
+                }
+
+                extraMap.put(state.node, factor * producedAmount - (requiredAmount - extraAmount));
+
+                for (Edge edge : g.edges.get(state.node)) {
+                    pq.add(new State(edge.to, ts.sortOrder.get(edge.to)));
+                    Integer edgeRequiredAmount = requiredMap.getOrDefault(edge.to, 0);
+                    edgeRequiredAmount += edge.value * factor;
+                    requiredMap.put(edge.to, edgeRequiredAmount);
+                }
             }
         }
 
-        return -1;
+        return count - 1;
     }
 }
