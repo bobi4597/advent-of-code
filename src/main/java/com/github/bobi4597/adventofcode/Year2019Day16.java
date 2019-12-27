@@ -2,26 +2,37 @@ package com.github.bobi4597.adventofcode;
 
 import java.util.Scanner;
 
+/**
+ *  https://adventofcode.com/2019/day/16
+ */
 public class Year2019Day16 {
 
     private static final int[] PATTERN = {0, 1, 0, -1};
     private static int[] a, b;
-    private static int n;
+    private static int n, offset;
+    private static String input;
+    private static final int REPEAT2 = 10_000;
+    private static int N2;
 
     public static void main(String[] args) {
         readInput();
         System.out.printf("%s\n", solve1());
+        System.out.printf("%s\n", solve2());
     }
 
     private static void readInput() {
         Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
+        input = scanner.nextLine();
         n = input.length();
         a = new int[n];
         b = new int[n];
         for (int i = 0; i < n; ++i) {
             a[i] = input.charAt(i) - '0';
         }
+
+        // part 2 //
+        N2 = input.length() * REPEAT2;
+        offset = Integer.parseInt(input.substring(0, 7));
     }
 
     /////////////// part 1 ///////////////////
@@ -63,5 +74,47 @@ public class Year2019Day16 {
         }
     }
 
+    /////////////////////// part 2 ////////////////////////
+//    15: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+//    16: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+//    17: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+//    18: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+//    19: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+//    20: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+//    21: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+//    22: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1]
+//    23: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1]
+//    24: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1]
+//    25: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1]
+//    26: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1]
+//    27: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1]
+//    28: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1]
+//    29: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+    /**
+     * Calculate only the digits that are after the offset.
+     * The pattern for the digits after the offset is as above (only 1s).
+     */
+    private static String solve2() {
 
+        a = new int[N2 - offset];
+        b = new int[N2 - offset];
+
+        for (int i = offset; i < N2; ++i) {
+            a[i - offset] = input.charAt(i % input.length()) - '0';
+        }
+
+        for (int step = 0; step < 100; ++step) {
+            for (int i = N2 - 1; i >= offset; --i) {
+                b[i - offset] = ((i + 1 < N2 ? b[i - offset + 1] : 0) + a[i - offset]) % 10;
+
+            }
+            System.arraycopy(b, 0, a, 0, N2 - offset);
+        }
+
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < 8; ++i) {
+            result.append(a[i]);
+        }
+        return result.toString();
+    }
 }
