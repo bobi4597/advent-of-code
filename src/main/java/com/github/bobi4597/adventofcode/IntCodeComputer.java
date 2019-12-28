@@ -8,12 +8,16 @@ import java.util.stream.Collectors;
 
 public class IntCodeComputer {
 
+    private static int PARAMETER_MODE = 0, IMMEDIATE_MODE = 1, RELATIVE_MODE = 2;
+
     private int[] a;
     private int pc;
+    private int relativeBase;
 
     public IntCodeComputer(int[] a) {
         this.a = a;
-        pc = 0;
+        this.pc = 0;
+        this.relativeBase = 0;
     }
 
     public RunResult run(int[] input) {
@@ -28,8 +32,8 @@ public class IntCodeComputer {
             int arg3 = pc + 3 < n ? a[pc + 3] : 0;
             int mode1 = (opcode / 100) % 10;
             int mode2 = (opcode / 1000) % 10;
-            int val1 = mode1 == 0 ? (arg1 < n ? a[arg1]: 0): arg1;
-            int val2 = mode2 == 0 ? (arg2 < n ? a[arg2]: 0): arg2;
+            int val1 = getParameterValue(mode1, arg1);
+            int val2 = getParameterValue(mode2, arg2);
 
             switch (opcode % 100) {
                 case 1: // add
@@ -77,12 +81,30 @@ public class IntCodeComputer {
                     }
                     pc += 4;
                     break;
+                case 9: // adjust relative base
+                    relativeBase += val1;
+                    pc += 2;
+                    break;
                 default:  // 99
                     doWork = false;
                     break;
             }
         }
         return new RunResult(true, -1);
+    }
+
+    private int getParameterValue(int mode, int arg) {
+        if (mode == PARAMETER_MODE) {
+            return arg < a.length ? a[arg] : 0;
+        }
+        if (mode == IMMEDIATE_MODE) {
+            return arg;
+        }
+        if (mode == RELATIVE_MODE) {
+            int absoluteArg = relativeBase + arg;
+            return absoluteArg >= 0 && absoluteArg < a.length ? a[absoluteArg] : 0;
+        }
+        return 0;
     }
 
     public static String readInput() {
