@@ -8,12 +8,15 @@ import java.util.stream.Collectors;
 public class Year2019Day5 {
 
     public static void main(String[] args) {
-        int[] a = readInput();
-        // System.out.printf("%s\n", solve(a, 1));
-        System.out.printf("%s\n", solve(a, 5));
+        String input = readInput();
+        int[] a = parseInput(input);
+        System.out.printf("Solution for part 1: %s\n", solve(a, new int[] {1}));
+        a = parseInput(input);
+        System.out.printf("Solution for part 2: %s\n", solve(a, new int[] {5}));
     }
 
-    private static String solve(int[] a, int input) {
+    private static String solve(int[] a, int[] input) {
+        int inputIndex = 0;
         StringBuilder output = new StringBuilder();
         int n = a.length;
         int pc = 0;
@@ -38,7 +41,7 @@ public class Year2019Day5 {
                     pc += 4;
                     break;
                 case 3: // input
-                    a[arg1] = input;
+                    a[arg1] = input[inputIndex++];
                     pc += 2;
                     break;
                 case 4: // output
@@ -83,15 +86,21 @@ public class Year2019Day5 {
         return output.toString();
     }
 
-    private static int[] readInput() {
+    private static String readInput() {
         Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
+        return scanner.nextLine();
+    }
+
+    private static int[] parseInput(String input) {
         List<Integer> list = Arrays
             .stream(input.split(","))
             .map(Integer::parseInt)
             .collect(Collectors.toList());
+
         int[] a = new int[list.size()];
-        for (int i = 0; i < a.length; ++i) a[i] = list.get(i);
+        for (int i = 0; i < a.length; ++i) {
+            a[i] = list.get(i);
+        }
         return a;
     }
 }
