@@ -37,7 +37,7 @@ public class BigIntCodeComputer {
         this.relativeBase = ZERO;
     }
 
-    public BigRunResult run(int[] input) {
+    public BigRunResult run(int[] input, boolean stopOnOutput) {
         int inputIndex = 0;
         List<BigInteger> output = new ArrayList<>();
 
@@ -72,8 +72,11 @@ public class BigIntCodeComputer {
                     pc = pc.add(TWO);
                     break;
                 case 4: // output
-                    output.add(val1);
                     pc = pc.add(TWO);
+                    output.add(val1);
+                    if (stopOnOutput) {
+                        return new BigRunResult(false, output);
+                    }
                     break;
                     //return new BigRunResult(false, val1);
                 case 5: // jump-if-true

@@ -12,13 +12,13 @@ public class Year2019Day9 {
 
     private static String solve1(String inputString) {
         BigIntCodeComputer a = new BigIntCodeComputer(inputString);
-        BigRunResult runResult = a.run(new int[] {1});
+        BigRunResult runResult = a.run(new int[] {1}, false);
         return runResult.output.toString();
     }
 
     private static String solve2(String inputString) {
         BigIntCodeComputer a = new BigIntCodeComputer(inputString);
-        BigRunResult runResult = a.run(new int[] {2});
+        BigRunResult runResult = a.run(new int[] {2}, false);
         return runResult.output.toString();
     }
 }

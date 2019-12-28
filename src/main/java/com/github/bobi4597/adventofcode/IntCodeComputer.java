@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
+/** works until (including) day 7 */
 public class IntCodeComputer {
 
     private static int PARAMETER_MODE = 0, IMMEDIATE_MODE = 1, RELATIVE_MODE = 2;
