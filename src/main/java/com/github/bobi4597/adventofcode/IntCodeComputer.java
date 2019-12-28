@@ -6,15 +6,20 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
-public final class IntCodeComputer {
-    private IntCodeComputer() {
+public class IntCodeComputer {
+
+    private int[] a;
+    private int pc;
+
+    public IntCodeComputer(int[] a) {
+        this.a = a;
+        pc = 0;
     }
 
-    static List<Integer> run(int[] a, int[] input) {
+    public RunResult run(int[] input) {
         int inputIndex = 0;
         List<Integer> output = new ArrayList<>();
         int n = a.length;
-        int pc = 0;
         boolean doWork = true;
         while (doWork) {
             int opcode = a[pc];
@@ -40,9 +45,8 @@ public final class IntCodeComputer {
                     pc += 2;
                     break;
                 case 4: // output
-                    output.add(val1);
                     pc += 2;
-                    break;
+                    return new RunResult(false, val1);
                 case 5: // jump-if-true
                     if (val1 != 0) {
                         pc = val2;
@@ -78,15 +82,15 @@ public final class IntCodeComputer {
                     break;
             }
         }
-        return output;
+        return new RunResult(true, -1);
     }
 
-    static String readInput() {
+    public static String readInput() {
         Scanner scanner = new Scanner(System.in);
         return scanner.nextLine();
     }
 
-    static int[] parseInput(String input) {
+    public static int[] parseInput(String input) {
         List<Integer> list = Arrays
             .stream(input.split(","))
             .map(Integer::parseInt)

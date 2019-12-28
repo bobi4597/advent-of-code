@@ -4,13 +4,13 @@ import java.util.Arrays;
 
 import static com.github.bobi4597.adventofcode.IntCodeComputer.parseInput;
 import static com.github.bobi4597.adventofcode.IntCodeComputer.readInput;
-import static com.github.bobi4597.adventofcode.IntCodeComputer.run;
 
 public class Year2019Day7 {
 
     public static void main(String[] args) {
         String input = readInput();
         System.out.printf("Part 1: %s\n", solve1(input));
+        System.out.printf("Part 2: %s\n", solve2(input));
     }
 
     private static int solve1(String input) {
@@ -19,9 +19,36 @@ public class Year2019Day7 {
         while (true) {
             int inputSignal = 0;
             for (int i = 0; i < 5; ++i) {
-                int[] a = parseInput(input);
-                int outputSignal = run(a, new int[] {p[i], inputSignal}).get(0);
-                inputSignal = outputSignal;
+                IntCodeComputer a = new IntCodeComputer(parseInput(input));
+                RunResult runResult = a.run(new int[] {p[i], inputSignal});
+                inputSignal = runResult.output;
+            }
+            bestSignal = Math.max(bestSignal, inputSignal);
+            if (!nextPermutation(p)) {
+                break;
+            }
+        }
+        return bestSignal;
+    }
+
+    private static int solve2(String inputString) {
+        int[] p = new int[] {5, 6, 7, 8, 9};
+        int bestSignal = Integer.MIN_VALUE;
+        while (true) {
+            IntCodeComputer[] a = new IntCodeComputer[5];
+            for (int i = 0; i < 5; ++i) {
+                a[i] = new IntCodeComputer(parseInput(inputString));
+            }
+            int inputSignal = 0;
+            int i = 0;
+            while (true) {
+                int[] input = i < 5 ? new int[] {p[i % 5], inputSignal} : new int[] {inputSignal};
+                RunResult runResult = a[i % 5].run(input);
+                if (runResult.isDone) {
+                    break;
+                }
+                ++i;
+                inputSignal = runResult.output;
             }
             bestSignal = Math.max(bestSignal, inputSignal);
             if (!nextPermutation(p)) {
