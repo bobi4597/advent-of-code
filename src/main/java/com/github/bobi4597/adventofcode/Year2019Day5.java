@@ -9,44 +9,75 @@ public class Year2019Day5 {
 
     public static void main(String[] args) {
         int[] a = readInput();
-        System.out.printf("%s\n", solve1(a, 1));
+        // System.out.printf("%s\n", solve(a, 1));
+        System.out.printf("%s\n", solve(a, 5));
     }
 
-    private static String solve1(int[] a, int input) {
+    private static String solve(int[] a, int input) {
         StringBuilder output = new StringBuilder();
         int n = a.length;
         int pc = 0;
-        while (true) {
+        boolean doWork = true;
+        while (doWork) {
             int opcode = a[pc];
-            int arg1 = pc + 1 < n ? a[pc + 1] : -1;
-            int arg2 = pc + 2 < n ? a[pc + 2] : -1;
-            int arg3 = pc + 3 < n ? a[pc + 3] : -1;
-
+            int arg1 = pc + 1 < n ? a[pc + 1] : 0;
+            int arg2 = pc + 2 < n ? a[pc + 2] : 0;
+            int arg3 = pc + 3 < n ? a[pc + 3] : 0;
             int mode1 = (opcode / 100) % 10;
             int mode2 = (opcode / 1000) % 10;
-            int mode3 = (opcode / 10000) % 10;
+            int val1 = mode1 == 0 ? (arg1 < n ? a[arg1]: 0): arg1;
+            int val2 = mode2 == 0 ? (arg2 < n ? a[arg2]: 0): arg2;
 
-            if (opcode % 100 == 1) {
-                int val1 = mode1 == 0 ? a[arg1]: arg1;
-                int val2 = mode2 == 0 ? a[arg2]: arg2;
-                a[arg3] = val1 + val2;
-                pc += 4;
-            } else if (opcode % 100 == 2) {
-                int val1 = mode1 == 0 ? a[arg1]: arg1;
-                int val2 = mode2 == 0 ? a[arg2]: arg2;
-                a[arg3] = val1 * val2;
-                pc += 4;
-            } else if (opcode % 100 == 3) {
-                a[arg1] = input;
-                pc += 2;
-            } else if (opcode % 100 == 4) {
-                int val1 = mode1 == 0 ? a[arg1]: arg1;
-                if (val1 != 0) {
-                    output.append(val1);
-                }
-                pc += 2;
-            } else { // 99
-                break;
+            switch (opcode % 100) {
+                case 1: // add
+                    a[arg3] = val1 + val2;
+                    pc += 4;
+                    break;
+                case 2: // multiply
+                    a[arg3] = val1 * val2;
+                    pc += 4;
+                    break;
+                case 3: // input
+                    a[arg1] = input;
+                    pc += 2;
+                    break;
+                case 4: // output
+                    if (val1 != 0) output.append(val1);
+                    pc += 2;
+                    break;
+                case 5: // jump-if-true
+                    if (val1 != 0) {
+                        pc = val2;
+                    } else {
+                        pc += 3;
+                    }
+                    break;
+                case 6: // jump-if-false
+                    if (val1 == 0) {
+                        pc = val2;
+                    } else {
+                        pc += 3;
+                    }
+                    break;
+                case 7: // less than
+                    if (val1 < val2) {
+                        a[arg3] = 1;
+                    } else {
+                        a[arg3] = 0;
+                    }
+                    pc += 4;
+                    break;
+                case 8: // equals
+                    if (val1 == val2) {
+                        a[arg3] = 1;
+                    } else {
+                        a[arg3] = 0;
+                    }
+                    pc += 4;
+                    break;
+                default:  // 99
+                    doWork = false;
+                    break;
             }
         }
         return output.toString();
