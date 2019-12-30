@@ -11,4 +11,11 @@ public class BigRunResult {
         this.isDone = isDone;
         this.output = output;
     }
+
+    public void printAscii() {
+        for (BigInteger bigInt: output) {
+            int out = bigInt.intValue();
+            System.out.print((char) out);
+        }
+    }
 }
