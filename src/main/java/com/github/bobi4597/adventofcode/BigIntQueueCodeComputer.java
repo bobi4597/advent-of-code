@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 import static java.math.BigInteger.ONE;
@@ -29,14 +31,18 @@ public class BigIntQueueCodeComputer {
     private BigInteger pc;
     private BigInteger relativeBase;
     private Queue<BigInteger> inputQueue;
+    private int id;
     private int outputSizeToBreak;
-
-    public BigIntQueueCodeComputer(String inputString) {
-        this(inputString, 1);
-    }
+    private ConcurrentMap<Integer, Integer> idleSet;
 
     public BigIntQueueCodeComputer(String inputString, int outputSizeToBreak) {
+        this(inputString, 0, new ConcurrentHashMap<Integer, Integer>(), outputSizeToBreak);
+    }
+
+    public BigIntQueueCodeComputer(String inputString, int id, ConcurrentMap<Integer, Integer> idleSet, int outputSizeToBreak) {
         List<BigInteger> inputA = parseInput(inputString);
+        this.id = id;
+        this.idleSet = idleSet;
         this.outputSizeToBreak = outputSizeToBreak;
         this.a = new HashMap<>();
         for (int i = 0; i < inputA.size(); ++i) {
@@ -78,6 +84,11 @@ public class BigIntQueueCodeComputer {
                     break;
                 case 3: // input
                     BigInteger nextInput = inputQueue.isEmpty() ? ONE.negate() : inputQueue.poll();
+                    if (inputQueue.isEmpty()) {
+                        idleSet.put(id, 0);
+                    } else {
+                        idleSet.remove(id);
+                    }
                     a.put(address1, nextInput);
                     //++inputIndex;
                     pc = pc.add(TWO);
