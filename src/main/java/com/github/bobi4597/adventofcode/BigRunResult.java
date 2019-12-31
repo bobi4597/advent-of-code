@@ -13,9 +13,15 @@ public class BigRunResult {
     }
 
     public void printAscii() {
+        System.out.println(toAscii());
+    }
+
+    public String toAscii() {
+        StringBuilder sb = new StringBuilder();
         for (BigInteger bigInt: output) {
             int out = bigInt.intValue();
-            System.out.print((char) out);
+            sb.append((char) out);
         }
+        return sb.toString();
     }
 }

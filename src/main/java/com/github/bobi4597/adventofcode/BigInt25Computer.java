@@ -15,7 +15,11 @@ import static java.math.BigInteger.TEN;
 import static java.math.BigInteger.TWO;
 import static java.math.BigInteger.ZERO;
 
-public class BigIntCodeComputer {
+/**
+ * Intcode computer for the 25th day.
+ * The output command returns when the last 8 characters in the output list are "Command?" (ascii).
+ */
+public class BigInt25Computer {
 
     private static BigInteger PARAMETER_MODE = ZERO,
         IMMEDIATE_MODE = BigInteger.ONE,
@@ -28,7 +32,7 @@ public class BigIntCodeComputer {
     private BigInteger pc;
     private BigInteger relativeBase;
 
-    public BigIntCodeComputer(String inputString) {
+    public BigInt25Computer(String inputString) {
         List<BigInteger> inputA = parseInput(inputString);
         this.a = new HashMap<>();
         for (int i = 0; i < inputA.size(); ++i) {
@@ -38,7 +42,7 @@ public class BigIntCodeComputer {
         this.relativeBase = ZERO;
     }
 
-    public BigRunResult run(int[] input, boolean stopOnOutput) {
+    public BigRunResult run(int[] input) {
         int inputIndex = 0;
         List<BigInteger> output = new ArrayList<>();
 
@@ -75,11 +79,13 @@ public class BigIntCodeComputer {
                 case 4: // output
                     pc = pc.add(TWO);
                     output.add(val1);
-                    if (stopOnOutput) {
+                    // This is "Command?" in ASCII
+                    // 067 111 109 109 097 110 100 063
+                    if (val1.intValue() == 63 && output.get(output.size() - 2).intValue() == 100) {
                         return new BigRunResult(false, output);
                     }
                     break;
-                    //return new BigRunResult(false, val1);
+                //return new BigRunResult(false, val1);
                 case 5: // jump-if-true
                     if (!val1.equals(ZERO)) {
                         pc = val2;
