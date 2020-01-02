@@ -2,15 +2,20 @@ package com.github.bobi4597.adventofcode.y2018;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.github.bobi4597.adventofcode.y2018.Year2018Day1.FOLDER_PATH;
+
 public class Year2018Day2 {
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws IOException {
         List<String> a = readInput();
         System.out.printf("Part 1: %d\n", solve1(a));
         System.out.printf("Part 2: %s\n", solve2(a));
@@ -55,13 +60,8 @@ public class Year2018Day2 {
         return counts[0] * counts[1];
     }
 
-    private static List<String> readInput() throws FileNotFoundException {
-        Scanner scanner = new Scanner(new FileInputStream("src/main/java/com/github/bobi4597/adventofcode/y2018/day2.txt"));
-        List<String> a = new ArrayList<>();
-        while (scanner.hasNextLine()) {
-            a.add(scanner.nextLine());
-        }
-        return a;
+    private static List<String> readInput() throws IOException {
+        return Files.lines(Paths.get(FOLDER_PATH + "day2.txt"))
+            .collect(Collectors.toList());
     }
-
 }

@@ -1,16 +1,18 @@
 package com.github.bobi4597.adventofcode.y2018;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Scanner;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Year2018Day1 {
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static final String FOLDER_PATH = "src/main/java/com/github/bobi4597/adventofcode/y2018/";
+
+    public static void main(String[] args) throws IOException {
         List<Integer> a = readInput();
         System.out.printf("Part 1: %d\n", solve1(a));
         System.out.printf("Part 2: %d\n", solve2(a));
@@ -30,20 +32,14 @@ public class Year2018Day1 {
         }
     }
 
-    private static Object solve1(List<Integer> a) {
-        int sum = 0;
-        for (int x: a) {
-            sum += x;
-        }
-        return sum;
+    private static int solve1(List<Integer> a) {
+        return a.stream()
+            .reduce(0, Integer::sum);
     }
 
-    private static List<Integer> readInput() throws FileNotFoundException {
-        Scanner scanner = new Scanner(new FileInputStream("src/main/java/com/github/bobi4597/adventofcode/y2018/day1.txt"));
-        List<Integer> a = new ArrayList<>();
-        while (scanner.hasNextLine()) {
-            a.add(Integer.parseInt(scanner.nextLine()));
-        }
-        return a;
+    private static List<Integer> readInput() throws IOException {
+        return Files.lines(Paths.get(FOLDER_PATH + "day1.txt"))
+            .map(Integer::parseInt)
+            .collect(Collectors.toList());
     }
 }
