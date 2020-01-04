@@ -20,6 +20,82 @@ public class Year2018Day4 {
     public static void main(String[] args) throws IOException {
         List<String> a = readInput();
         System.out.printf("Part 1: %d\n", solve1(a));
+        System.out.printf("Part 2: %d\n", solve2(a));
+    }
+
+    private static int solve2(List<String> a) {
+        int[] topGuard2 = parseInput(a)
+            .entrySet()
+            .stream()
+            .map(entry -> new int[] {
+                entry.getKey(),
+                entry.getValue().entrySet().stream().max(Comparator.comparingInt(Map.Entry::getValue)).get().getKey(), // the minute
+                entry.getValue().entrySet().stream().max(Comparator.comparingInt(Map.Entry::getValue)).get().getValue() // the times slept at that minute
+            })
+            .max(Comparator.comparingInt((int[] arr) -> arr[2]))
+            .get();
+
+        return topGuard2[0] * topGuard2[1];
+
+    }
+
+    private static int solve1(List<String> a) {
+
+        int[] topGuard = parseInput(a)
+            .entrySet()
+            .stream()
+            .map(entry -> new int[] {
+                entry.getKey(),
+                entry.getValue().values().stream().mapToInt(x -> x).sum(),
+                entry.getValue().entrySet().stream().max(Comparator.comparingInt(Map.Entry::getValue)).get().getKey()
+            })
+            .max(Comparator.comparingInt((int[] arr) -> arr[1]))
+            .get();
+
+        return topGuard[0] * topGuard[2];
+
+    }
+
+    private static Map<Integer, Map<Integer, Integer>> parseInput(List<String> a) {
+        int[] lastGuardId = new int[1];
+        LocalDateTime[] lastFallenAsleep = new LocalDateTime[1];
+
+        Map<Integer, Map<Integer, Integer>> guardToMinuteMap = a
+            .stream()
+            .map(Event::new)
+            // first sort by date
+            .sorted(Comparator.comparing(e -> e.dateTime))
+            .peek(e -> {
+                if (e.guardId != -1) lastGuardId[0] = e.guardId;
+                else e.guardId = lastGuardId[0];
+                if (e.isFallsAsleep) lastFallenAsleep[0] = e.dateTime;
+                if (e.isWakesUp) e.fallsAsleep = lastFallenAsleep[0];
+            })
+            .sorted(Comparator.comparing((Event e1) -> e1.guardId).thenComparing((Event e2) -> e2.dateTime))
+            .filter(e -> e.isWakesUp)
+            .collect(Collectors.groupingBy(
+                (Event e3) -> e3.guardId,
+                Collectors.reducing(
+                    new HashMap<Integer, Integer>(),
+                    (Event e4) -> IntStream.range(e4.fallsAsleep.getMinute(), e4.dateTime.getMinute())
+                            .boxed()
+                            .collect(Collectors.toMap(x -> x, x -> 1))
+                    ,
+                    (acc, val) -> {
+                        final Map<Integer, Integer> newAcc = new HashMap<>(acc);
+                        val.forEach((key, value) -> newAcc.merge(key, value, Integer::sum));
+                        return newAcc;
+                    }
+                )
+            ));
+
+        return guardToMinuteMap;
+    }
+
+
+    private static List<String> readInput() throws IOException {
+        return Files.lines(Paths.get(FOLDER_PATH + "day4.txt"))
+            .collect(Collectors.toList());
     }
 
     static class Event {
@@ -55,55 +131,4 @@ public class Year2018Day4 {
         }
     }
 
-    private static int solve1(List<String> a) {
-        int[] lastGuardId = new int[1];
-        LocalDateTime[] lastFallenAsleep = new LocalDateTime[1];
-
-        Map<Integer, Map<Integer, Integer>> guardToMinuteMap = a
-            .stream()
-            .map(Event::new)
-            // first sort by date
-            .sorted(Comparator.comparing(e -> e.dateTime))
-            .peek(e -> {
-                if (e.guardId != -1) lastGuardId[0] = e.guardId;
-                else e.guardId = lastGuardId[0];
-                if (e.isFallsAsleep) lastFallenAsleep[0] = e.dateTime;
-                if (e.isWakesUp) e.fallsAsleep = lastFallenAsleep[0];
-            })
-            .sorted(Comparator.comparing((Event e1) -> e1.guardId).thenComparing((Event e2) -> e2.dateTime))
-            .filter(e -> e.isWakesUp)
-            .collect(Collectors.groupingBy(
-                (Event e3) -> e3.guardId,
-                Collectors.reducing(
-                    new HashMap<Integer, Integer>(),
-                    (Event e4) -> IntStream.range(e4.fallsAsleep.getMinute(), e4.dateTime.getMinute())
-                            .boxed()
-                            .collect(Collectors.toMap(x -> x, x -> 1))
-                    ,
-                    (acc, val) -> {
-                        final Map<Integer, Integer> newAcc = new HashMap<>(acc);
-                        val.forEach((key, value) -> newAcc.merge(key, value, Integer::sum));
-                        return newAcc;
-                    }
-                )
-            ));
-
-        int[] topGuard = guardToMinuteMap.entrySet()
-            .stream()
-            .map(entry -> new int[] {
-                    entry.getKey(),
-                    entry.getValue().values().stream().mapToInt(x -> x).sum(),
-                    entry.getValue().entrySet().stream().max(Comparator.comparingInt(Map.Entry::getValue)).get().getKey()
-            })
-            .max(Comparator.comparingInt((int[] arr) -> arr[1]))
-            .get();
-
-        return topGuard[0] * topGuard[2];
-    }
-
-
-    private static List<String> readInput() throws IOException {
-        return Files.lines(Paths.get(FOLDER_PATH + "day4.txt"))
-            .collect(Collectors.toList());
-    }
 }
