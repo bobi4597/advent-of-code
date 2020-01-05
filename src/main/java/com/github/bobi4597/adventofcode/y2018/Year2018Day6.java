@@ -16,16 +16,16 @@ import static com.github.bobi4597.adventofcode.y2018.Year2018Day1.FOLDER_PATH;
 
 public class Year2018Day6 {
 
+    private static final int DISTANCE = 10_000;
+
     public static void main(String[] args) {
         List<String> a = readInput();
-        System.out.printf("Part 1: %d\n", solve1(a));
+        List<Point> points = parseInput(a);
+        System.out.printf("Part 1: %d\n", solve1(points));
+        System.out.printf("Part 2: %d\n", solve2(points));
     }
 
-    private static long solve1(List<String> a) {
-        List<Point> points = a
-            .stream()
-            .map(Point::fromString)
-            .collect(Collectors.toList());
+    private static int solve2(List<Point> points) {
 
         MinMaxStats minMaxStats = points
             .stream()
@@ -40,7 +40,56 @@ public class Year2018Day6 {
             )
             .get();
 
-        System.out.println(minMaxStats.toString());
+        List<Integer> dy = IntStream
+            .range(minMaxStats.maxY - DISTANCE, minMaxStats.minY + DISTANCE)
+            .boxed()
+            .map(y -> points
+                .stream()
+                .map(p -> Math.abs(y - p.y))
+                .reduce(0, Integer::sum)
+            )
+            .sorted()
+            .collect(Collectors.toList());
+
+        List<Integer> dx = IntStream
+            .range(minMaxStats.maxX - DISTANCE, minMaxStats.minX + DISTANCE)
+            .boxed()
+            .map(x -> points
+                .stream()
+                .map(p -> Math.abs(x - p.x))
+                .reduce(0, Integer::sum)
+            )
+            .sorted()
+            .collect(Collectors.toList());
+
+        int count = 0;
+
+        int indexY = 0;
+        int indexX = dx.size() - 1;
+        while (indexY < dy.size()) {
+            while (indexX >= 0 && dy.get(indexY) + dx.get(indexX) > DISTANCE) {
+                --indexX;
+            }
+            count += (indexX + 1);
+            ++indexY;
+        }
+        return count;
+    }
+
+    private static long solve1(List<Point> points) {
+
+        MinMaxStats minMaxStats = points
+            .stream()
+            .map(MinMaxStats::fromPoint)
+            .reduce((acc, val) ->
+                new MinMaxStats(
+                    Math.min(acc.minX, val.minX),
+                    Math.max(acc.maxX, val.maxX),
+                    Math.min(acc.minY, val.minY),
+                    Math.max(acc.maxY, val.maxY)
+                )
+            )
+            .get();
 
         Map<Point, Point> closestLetterMap = new HashMap<>();
 
@@ -65,18 +114,18 @@ public class Year2018Day6 {
                 closestLetterMap.put(mapPoint, closestLetter);
             });
 
-        Set<String> infiniteLetters = new HashSet<>();
+        Set<Point> infiniteLetters = new HashSet<>();
         closestLetterMap
             .forEach((mapPoint, letterPoint) -> {
                 if (mapPoint.x == minMaxStats.minX - 1 || mapPoint.x == minMaxStats.maxX + 1 || mapPoint.y == minMaxStats.minY - 1 || mapPoint.y == minMaxStats.maxY + 1) {
-                    infiniteLetters.add(toKey(letterPoint));
+                    infiniteLetters.add(letterPoint);
                 }
             });
 
         Map<Point, Long> pointCountMap = closestLetterMap
             .entrySet()
             .stream()
-            .filter(entry -> !infiniteLetters.contains(toKey(entry.getValue())))
+            .filter(entry -> !infiniteLetters.contains(entry.getValue()))
             .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.counting()));
 
         Map.Entry<Point, Long> topEntry = pointCountMap
@@ -86,15 +135,6 @@ public class Year2018Day6 {
             .get();
 
         return topEntry.getValue();
-    }
-
-    private static Point toPoint(String key) {
-        String[] xy = key.split(":");
-        return new Point(Integer.parseInt(xy[0]), Integer.parseInt(xy[1]));
-    }
-
-    private static String toKey(Point point) {
-        return String.format("%d:%d", point.x, point.y);
     }
 
     private static int distance(Point p1, Point p2) {
@@ -148,6 +188,13 @@ public class Year2018Day6 {
         public String toString() {
             return String.format("minX - maxX: (%d - %d), minY - maxY: (%d - %d)", minX, maxX, minY, maxY);
         }
+    }
+
+    private static List<Point> parseInput(List<String> a) {
+        return a
+            .stream()
+            .map(Point::fromString)
+            .collect(Collectors.toList());
     }
 
     private static List<String> readInput() {
