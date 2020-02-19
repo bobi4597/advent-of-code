@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,7 +22,63 @@ public class Year2018Day7 {
     public static void main(String[] args) {
         List<String> a = readInput();
         Graph graph = parseInput(a);
-        System.out.printf("Part 1: %s\n", solve1(graph));
+        String order = solve1(graph);
+        System.out.printf("Part 1: %s\n", order);
+        System.out.printf("Part 2: %d\n", solve2(graph, order));
+    }
+
+    private static int solve2(Graph graph, String order) {
+        PriorityQueue<Step> pq = new PriorityQueue<>(Comparator.comparingInt(s -> (s.startTime + s.duration)));
+        int time = 0;
+
+        Set<String> visited = new HashSet<>();
+
+        for (int i = 0; i < order.length(); ++i) {
+            String name = "" + order.charAt(i);
+            int duration = 0 + (order.charAt(i) - 'A') + 1;
+            while (true) {
+                if (graph.edges.get(name) == null || graph.edges.get(name).size() == 0) {
+                    // no dependencies to wait for:
+                    // 1. check if there is enough space in the priority queue
+                    if (pq.size() == 5) {
+                        Step top = pq.poll();
+                        removeNode(graph, top.name);
+                        time = (top.startTime + top.duration);
+                    }
+                    pq.add(new Step(name, time, duration));
+                    break;
+                } else {
+                    // there are dependencies
+                    Step top = pq.poll();
+                    removeNode(graph, top.name);
+                    time = (top.startTime + top.duration);
+                }
+            }
+        }
+
+        while (!pq.isEmpty()) {
+            Step top = pq.poll();
+            time = top.startTime + top.duration;
+        }
+
+        return time;
+    }
+
+    private static void removeNode(Graph graph, String nodeToRemove) {
+        for (String node: graph.nodes) {
+            if (graph.edges.get(node) != null) {
+                graph.edges.get(node).remove(nodeToRemove);
+            }
+        }
+    }
+
+    static class Step {
+        String name;
+        int startTime;
+        int duration;
+        Step (String name, int startTime, int duration) {
+            this.name = name; this.startTime = startTime; this.duration = duration;
+        }
     }
 
     private static String solve1(Graph graph) {
